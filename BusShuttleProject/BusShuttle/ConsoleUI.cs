@@ -4,30 +4,80 @@ using Spectre.Console;
 public class ConsoleUI
 {
     FileSaver fileSaver; 
-
+    List<Driver> drivers;
+    List<Loop> loops;
+    List<Stop> stops;
     public ConsoleUI() 
     { 
         fileSaver = new FileSaver("passenger-data.txt");
+        //Init Drivers
+        drivers= new List<Driver>();
+        drivers.Add(new Driver("Huseyin Ergin"));
+        drivers.Add(new Driver("Jane Doe")); 
+        //Init Loops
+        loops = new List<Loop>();
+        loops.Add(new Loop("Red"));
+        loops.Add(new Loop("Green"));
+        loops.Add(new Loop("Blue")); 
+        loops.Add(new Loop("Orange")); 
+        //Init Stops
+        stops = new List<Stop>(); 
+        stops.Add(new Stop("Oakwood"));
+        stops.Add(new Stop("Anthony"));
+        stops.Add(new Stop("North Bus Shelter"));
+        stops.Add(new Stop("North Dining"));
+        stops.Add(new Stop("Letterman"));
+        //Add stops to Loops
+        loops[0].Stops.Add(stops[0]);
+        loops[0].Stops.Add(stops[1]);
+        loops[0].Stops.Add(stops[2]);
+        loops[0].Stops.Add(stops[3]);
+        loops[0].Stops.Add(stops[4]); 
     } 
+    /// <summary>
+    /// Show the Main Console UI.
+    /// </summary>
     public void Show() 
     { 
-        var mode = AnsiConsole.Prompt(
+        //Select Driver or Manager
+        var mode = AnsiConsole.Prompt( 
             new SelectionPrompt<string>()
-            .Title("Please select a mode")
-            .AddChoices(new[]{"driver","manager"}));
+            .Title("Please select mode")
+            .AddChoices(new[] {"driver","manager" }));
+
+        //
+        if (mode == "driver")
         { 
-            string command; 
-            do
+            //Select Driver
+            var selectedDriver = AnsiConsole.Prompt(new SelectionPrompt<Driver>()
+                .Title("Select a driver")
+                .AddChoices(drivers));
+            Console.WriteLine("Now you are driving as "+selectedDriver.Name); 
+            //Select Loop
+            var selectedLoop = AnsiConsole.Prompt(new SelectionPrompt<Loop>().
+                Title("Select a loop").
+                AddChoices(loops));
+            Console.WriteLine("You are driving "+selectedLoop.Name+" loop today!");
+
+            //Loop over stop selection/passenger count until end is selected
+            string command;
+            do 
             { 
-                string stopName = AskForInput("Enter stop name: ");
-                int boarded = int.Parse(AskForInput("Enter number of boarded passengers: ")); 
-                fileSaver.AppendLine(stopName + ":" + boarded); 
+                var selectedStop = AnsiConsole.Prompt(new SelectionPrompt<Stop>()
+                    .Title("Select a stop")
+                    .AddChoices(selectedLoop.Stops)); 
+                Console.WriteLine("You selected "+selectedStop);
+
+                int boarded = int.Parse(AskForInput("Enter number of boarded passengers: "));
+                
+                PassengerData data = new(boarded,selectedStop,selectedLoop,selectedDriver);
+
+                fileSaver.AppendData(data); 
                 command = AnsiConsole.Prompt(
-                    new SelectionPrompt<string>()
-                    .Title("continue or end")
-                    .AddChoices(new[]{"continue","end"})); 
-                    } 
-            while (command != "end");
+                    new SelectionPrompt<string>() 
+                    .Title("What's next?") 
+                    .AddChoices(new[] { "continue","end"}));
+            } while (command != "end"); 
         } 
     }
     public static string AskForInput(string message)
