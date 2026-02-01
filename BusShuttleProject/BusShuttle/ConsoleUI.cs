@@ -3,36 +3,12 @@ namespace BusShuttle;
 using Spectre.Console;
 public class ConsoleUI
 {
-    FileSaver fileSaver; 
-    List<Driver> drivers;
-    List<Loop> loops;
-    List<Stop> stops;
+    
+    DataManager dataManager;
     public ConsoleUI() 
     { 
-        fileSaver = new FileSaver("passenger-data.txt");
-        //Init Drivers
-        drivers= new List<Driver>();
-        drivers.Add(new Driver("Huseyin Ergin"));
-        drivers.Add(new Driver("Jane Doe")); 
-        //Init Loops
-        loops = new List<Loop>();
-        loops.Add(new Loop("Red"));
-        loops.Add(new Loop("Green"));
-        loops.Add(new Loop("Blue")); 
-        loops.Add(new Loop("Orange")); 
-        //Init Stops
-        stops = new List<Stop>(); 
-        stops.Add(new Stop("Oakwood"));
-        stops.Add(new Stop("Anthony"));
-        stops.Add(new Stop("North Bus Shelter"));
-        stops.Add(new Stop("North Dining"));
-        stops.Add(new Stop("Letterman"));
-        //Add stops to Loops
-        loops[0].Stops.Add(stops[0]);
-        loops[0].Stops.Add(stops[1]);
-        loops[0].Stops.Add(stops[2]);
-        loops[0].Stops.Add(stops[3]);
-        loops[0].Stops.Add(stops[4]); 
+        
+        dataManager = new DataManager();
     } 
     /// <summary>
     /// Show the Main Console UI.
@@ -51,12 +27,12 @@ public class ConsoleUI
             //Select Driver
             var selectedDriver = AnsiConsole.Prompt(new SelectionPrompt<Driver>()
                 .Title("Select a driver")
-                .AddChoices(drivers));
+                .AddChoices(dataManager.Drivers));
             Console.WriteLine("Now you are driving as "+selectedDriver.Name); 
             //Select Loop
             var selectedLoop = AnsiConsole.Prompt(new SelectionPrompt<Loop>().
                 Title("Select a loop").
-                AddChoices(loops));
+                AddChoices(dataManager.Loops));
             Console.WriteLine("You are driving "+selectedLoop.Name+" loop today!");
 
             //Loop over stop selection/passenger count until end is selected
@@ -68,11 +44,11 @@ public class ConsoleUI
                     .AddChoices(selectedLoop.Stops)); 
                 Console.WriteLine("You selected "+selectedStop);
 
-                int boarded = int.Parse(AskForInput("Enter number of boarded passengers: "));
+                int boarded = AnsiConsole.Prompt(new TextPrompt<int>("Enter number of boarded passengers:")); 
                 
                 PassengerData data = new(boarded,selectedStop,selectedLoop,selectedDriver);
 
-                fileSaver.AppendData(data); 
+                dataManager.AddNewPassengerData(data);
                 command = AnsiConsole.Prompt(
                     new SelectionPrompt<string>() 
                     .Title("What's next?") 
@@ -80,9 +56,11 @@ public class ConsoleUI
             } while (command != "end"); 
         } 
     }
+    /*
     public static string AskForInput(string message)
     {
         Console.Write(message);
         return Console.ReadLine();
     }
+    */
 }
