@@ -8,7 +8,10 @@ public class FileSaver
     public FileSaver(string fileName)
     { 
         this.fileName = fileName; 
-        File.Create(this.fileName).Close(); 
+        if (!File.Exists(this.fileName))
+        {
+            File.Create(this.fileName).Close(); 
+        }
     } 
     /// <summary>
     /// Add single string to file as a new line.

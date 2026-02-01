@@ -9,6 +9,7 @@ public class FileSaverTests
     string testFileName;
     public FileSaverTests() { 
         testFileName = "test-doc.txt";
+        File.Delete(testFileName);
         fileSaver = new FileSaver(testFileName); 
     } 
     [Fact]
